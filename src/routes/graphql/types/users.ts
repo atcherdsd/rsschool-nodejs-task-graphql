@@ -1,15 +1,10 @@
-import { GraphQLObjectType, GraphQLError, GraphQLNonNull, GraphQLString, GraphQLFloat, GraphQLSchema, GraphQLList, GraphQLInputObjectType } from 'graphql';
+import { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLFloat, GraphQLSchema, GraphQLList, GraphQLInputObjectType } from 'graphql';
 import { UUIDType } from './uuid.js';
 import { User, PrismaClient } from '@prisma/client';
 import { FastifyReply } from 'fastify';
+import { ResourceNotFoundError } from './NotFoundError.js';
 
 const prisma = new PrismaClient();
-
-class UserNotFoundError extends GraphQLError {
-  constructor() {
-    super('Requested user not found');
-  }
-}
 
 type UserBody = {
   name: string;
@@ -44,7 +39,7 @@ const queryType = new GraphQLObjectType({
       resolve: async (_, args: { userId: string }) => {
         const user = await userType[args.userId] as User;
         if (user === null) {
-          throw new UserNotFoundError();
+          throw new ResourceNotFoundError();
         }
         return user;
       },

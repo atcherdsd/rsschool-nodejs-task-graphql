@@ -1,17 +1,13 @@
 import { MemberType } from '@prisma/client';
-import { GraphQLObjectType, GraphQLError, GraphQLNonNull, GraphQLEnumType, GraphQLInt, GraphQLFloat, GraphQLList, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLNonNull, GraphQLEnumType, GraphQLInt, GraphQLFloat, GraphQLList, GraphQLSchema } from 'graphql';
+import { ResourceNotFoundError } from './NotFoundError.js';
+import { MemberTypeId } from '../../member-types/schemas.js';
 
-class MemberTypeNotFoundError extends GraphQLError {
-  constructor() {
-    super('Requested member type not found');
-  }
-}
-
-const IDEnum = new GraphQLEnumType({
+export const IDEnum = new GraphQLEnumType({
   name: 'MemberID',
   values: {
-    BASIC: { value: 'basic' },
-    BUSINESS: { value: 'business' }
+    BASIC: { value: MemberTypeId.BASIC },
+    BUSINESS: { value: MemberTypeId.BUSINESS }
   }
 });
 
@@ -35,7 +31,7 @@ const queryType = new GraphQLObjectType({
       resolve: async (_, args: { memberTypeId: string }) => {
         const member = memberType[args.memberTypeId] as MemberType;
         if (member === null){
-          throw new MemberTypeNotFoundError();
+          throw new ResourceNotFoundError();
         }
         return member;
       }

@@ -1,31 +1,110 @@
-import { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLInt, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLError, GraphQLNonNull, GraphQLString, GraphQLFloat, GraphQLSchema, GraphQLList, GraphQLInputObjectType } from 'graphql';
 import { UUIDType } from './uuid.js';
-import { User } from '@prisma/client';
+import { User, PrismaClient } from '@prisma/client';
+import { FastifyReply } from 'fastify';
+
+const prisma = new PrismaClient();
+
+class UserNotFoundError extends GraphQLError {
+  constructor() {
+    super('Requested user not found');
+  }
+}
+
+type UserBody = {
+  name: string;
+  balance: number;
+}
 
 const userType = new GraphQLObjectType({
   name: 'User',
-  fields: () => ({
+  fields: {
     id: { type: new GraphQLNonNull(UUIDType) },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
+  },
+});
+
+const userUpdateInputType = new GraphQLInputObjectType({
+  name: 'UserUpdate',
+  fields: {
     name: { type: GraphQLString },
-    balance: { type: GraphQLInt },
-  }),
+    balance: { type: GraphQLFloat },
+  },
 });
 
 const queryType = new GraphQLObjectType({
   name: "Query",
   fields: {
-    user: {
+    getUser: {
       type: userType,
       args: {
-        id: { type: new GraphQLNonNull(UUIDType) },
+        userId: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: (_, args: { id: string }) => {
-        return userType[args.id] as User;
+      resolve: async (_, args: { userId: string }) => {
+        const user = await userType[args.userId] as User;
+        if (user === null) {
+          throw new UserNotFoundError();
+        }
+        return user;
+      },
+    },
+    getUsers: {
+      type: new GraphQLList(userType),
+      resolve: async () => {
+        return [userType] as unknown as [User];
+      }
+    }
+  }
+});
+const mutationType = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    createUser: {
+      type: userType,
+      args: {             // first option - without additional type
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        balance: { type: new GraphQLNonNull(GraphQLFloat) },
+      },
+      resolve: async (_, args: { body: UserBody }) => {
+        return prisma.user.create({
+          data: args.body
+        });
+      }
+    },
+    updateUser: {
+      type: userType,
+      args: {             // second option - with additional input type
+        userBody: { type: userUpdateInputType },
+        userId: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_, args: { userId: string, userBody: UserBody }) => {
+        return prisma.user.update({
+          where: {
+            id: args.userId
+          },
+          data: args.userBody
+        });
+      }
+    },
+    deleteUser: {
+      type: UUIDType,
+      args: {
+        userId: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_, args: {userId: string }, reply: FastifyReply) => {
+        void reply.code(204);
+        await prisma.user.delete({
+          where: {
+            id: args.userId
+          }
+        });
       }
     }
   }
 });
 
 export const schema = new GraphQLSchema({
-  query: queryType
+  query: queryType,
+  mutation: mutationType
 });

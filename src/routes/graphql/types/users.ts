@@ -11,7 +11,7 @@ type UserBody = {
   balance: number;
 }
 
-const userType = new GraphQLObjectType({
+export const userType = new GraphQLObjectType({
   name: 'User',
   fields: {
     id: { type: new GraphQLNonNull(UUIDType) },

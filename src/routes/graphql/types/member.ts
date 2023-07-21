@@ -29,7 +29,8 @@ const queryType = new GraphQLObjectType({
         memberTypeId: { type: new GraphQLNonNull(IDEnum) } 
       },
       resolve: async (_, args: { memberTypeId: string }) => {
-        const member = memberType[args.memberTypeId] as MemberType;
+        
+        const member = await memberType[args.memberTypeId] as MemberType;
         if (member === null){
           throw new ResourceNotFoundError();
         }

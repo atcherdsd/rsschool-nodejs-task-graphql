@@ -15,7 +15,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     async handler(req) {
       return await graphql({
-        schema: schema,
+        schema,
         source: req.body.query,
         variableValues: req.body.variables,
       });

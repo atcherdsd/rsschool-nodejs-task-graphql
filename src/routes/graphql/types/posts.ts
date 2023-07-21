@@ -14,7 +14,7 @@ interface POSTBody extends PATCHBody {
   authorId: string;
 }
 
-const postType = new GraphQLObjectType({
+export const postType = new GraphQLObjectType({
   name: 'Post',
   fields: {
     id: { type: new GraphQLNonNull(UUIDType) },

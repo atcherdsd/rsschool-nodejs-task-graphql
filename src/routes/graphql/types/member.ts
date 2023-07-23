@@ -2,15 +2,15 @@ import { GraphQLObjectType, GraphQLNonNull, GraphQLEnumType, GraphQLInt, GraphQL
 import { MemberTypeId } from '../../member-types/schemas.js';
 
 export const IDEnum = new GraphQLEnumType({
-  name: 'MemberID',
+  name: 'MemberTypeId',
   values: {
-    BASIC: { value: MemberTypeId.BASIC },
-    BUSINESS: { value: MemberTypeId.BUSINESS }
+    [MemberTypeId.BASIC]: { value: MemberTypeId.BASIC },
+    [MemberTypeId.BUSINESS]: { value: MemberTypeId.BUSINESS }
   }
 });
 
 export const memberType = new GraphQLObjectType({
-  name: 'MemberTypes',
+  name: 'MemberType',
   fields: {
     id: { type: new GraphQLNonNull(IDEnum) },
     discount: { type: new GraphQLNonNull(GraphQLFloat) },

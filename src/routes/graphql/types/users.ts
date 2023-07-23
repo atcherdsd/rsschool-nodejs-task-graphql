@@ -33,13 +33,13 @@ export const userType = new GraphQLObjectType({
       )
     },
     subscribedToUser: {
-      type: new GraphQLList(userType),
+      type: new GraphQLList(userType as GraphQLObjectType),
       resolve: async (source: User) => (
         await getFollowers(source.id)
       ),
     },
     userSubscribedTo: {
-      type: new GraphQLList(userType),
+      type: new GraphQLList(userType as GraphQLObjectType),
       resolve: async (source: User) => (
         await getSubscriptions(source.id)
       ),

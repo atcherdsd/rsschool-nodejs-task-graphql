@@ -2,7 +2,7 @@ import { GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLInt, GraphQLI
 import { UUIDType } from './uuid.js';
 import { IDEnum, memberType } from './member.js';
 import { MemberTypeId } from '../../member-types/schemas.js';
-import { getMemberType } from '../resolvers/memberTypeResolver.js';
+import { Context } from '../dataloader/dataLoader.js';
 
 export interface ProfilePATCHBody {
   isMale: boolean;
@@ -25,8 +25,8 @@ export const profileType = new GraphQLObjectType({
     userId: { type: new GraphQLNonNull(UUIDType) },
     memberType: {
       type: new GraphQLNonNull(memberType),
-      resolve: async (source: Profile) => (
-        await getMemberType({ id: source.memberTypeId })
+      resolve: async (source: Profile, _args, { memberTypesLoader }: Context) => (
+        await memberTypesLoader.load(source.memberTypeId)
       ),
     }
   }),

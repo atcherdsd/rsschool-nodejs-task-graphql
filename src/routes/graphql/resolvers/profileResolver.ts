@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { MemberTypeId } from '../../member-types/schemas.js';
 const prisma = new PrismaClient();
 
 export const getProfileByUserId = async (id: string) => {
@@ -8,4 +9,13 @@ export const getProfileByUserId = async (id: string) => {
     },
   });
   return profile;
+};
+
+export const getProfilesByMemberTypeId = async (id: MemberTypeId) => {
+  const profiles = await prisma.profile.findMany({
+    where: {
+      memberTypeId: id
+    }
+  })
+  return profiles;
 };

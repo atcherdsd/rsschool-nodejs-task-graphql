@@ -6,7 +6,7 @@ export interface ID {
   id: string;
 }
 
-export const getMemberType = async (args: ID) => {
+const getMemberType = async (args: ID) => {
   const memberType = await prisma.memberType.findUnique({
     where: {
       id: args.id,

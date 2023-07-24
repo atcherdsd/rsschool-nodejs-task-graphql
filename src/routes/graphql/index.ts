@@ -4,10 +4,14 @@ import { graphql, GraphQLError, validate, parse } from 'graphql';
 import { schema } from './types/schemas.js';
 import memberTypeResolver from './resolvers/memberTypeResolver.js';
 import depthLimit from 'graphql-depth-limit';
+import { createLoaders } from './dataloader/dataLoader.js';
 
 const rootValue = memberTypeResolver;
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
+  const { prisma } = fastify;
+  const dataLoaders = createLoaders(prisma);
+
   fastify.route({
     url: '/',
     method: 'POST',
@@ -27,6 +31,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema,
         source: req.body.query,
         rootValue,
+        contextValue: { ...dataLoaders },
         variableValues: req.body.variables,
       });
       return result;

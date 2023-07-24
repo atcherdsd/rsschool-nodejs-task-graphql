@@ -3,8 +3,8 @@ import { UUIDType } from './uuid.js';
 import { profileType } from './profiles.js';
 import { getProfileByUserId } from '../resolvers/profileResolver.js';
 import { postType } from './posts.js';
-import { getPostsByUserId } from '../resolvers/postResolver.js';
 import { getFollowers, getSubscriptions } from '../resolvers/userResolvers.js';
+import { Context } from '../dataloader/dataLoader.js';
 
 export type UserBody = {
   name: string;
@@ -21,15 +21,15 @@ export const userType = new GraphQLObjectType({
     name: { type: new GraphQLNonNull(GraphQLString) },
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     profile: {
-      type: profileType,
+      type: profileType as GraphQLObjectType,
       resolve: async (source: User) => (
         await getProfileByUserId(source.id)
       ),
     },
     posts: {
       type: new GraphQLList(postType),
-      resolve: async (source: User) => (
-        await getPostsByUserId(source.id)
+      resolve: async (source: User, _args, { postsByUserIdLoader }: Context) => (
+        await postsByUserIdLoader.load(source.id)
       )
     },
     subscribedToUser: {

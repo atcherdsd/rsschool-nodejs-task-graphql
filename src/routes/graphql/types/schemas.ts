@@ -67,7 +67,7 @@ const queryType = new GraphQLObjectType({
       }
     },
     profile: {
-      type: profileType,
+      type: profileType as GraphQLObjectType,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
@@ -193,7 +193,7 @@ const mutationType = new GraphQLObjectType({
       }
     },
     createProfile: {
-      type: profileType,
+      type: profileType as GraphQLObjectType,
       args: {
         dto: { type: createProfileInputType },
       },
@@ -209,7 +209,7 @@ const mutationType = new GraphQLObjectType({
       }
     },
     changeProfile: {
-      type: profileType,
+      type: profileType as GraphQLObjectType,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
         dto: { type: changeProfileInputType },

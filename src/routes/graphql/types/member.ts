@@ -11,9 +11,9 @@ export const IDEnum = new GraphQLEnumType({
 
 export const memberType = new GraphQLObjectType({
   name: 'MemberType',
-  fields: {
+  fields: () => ({
     id: { type: new GraphQLNonNull(IDEnum) },
     discount: { type: new GraphQLNonNull(GraphQLFloat) },
     postsLimitPerMonth: { type: new GraphQLNonNull(GraphQLInt) },
-  },
+  }),
 });
